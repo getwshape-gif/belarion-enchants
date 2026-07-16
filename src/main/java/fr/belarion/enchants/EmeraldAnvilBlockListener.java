@@ -1,4 +1,4 @@
-package fr.belarion.enchants;
+Épackage fr.belarion.enchants;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryType;
+import org.bukkit.event.inventory.InventoryType;
 
 /**
  * Bloc physique de l'Enclume en Émeraude. On réutilise un Lodestone comme
