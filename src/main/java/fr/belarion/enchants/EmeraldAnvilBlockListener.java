@@ -1,4 +1,4 @@
-Épackage fr.belarion.enchants;
+package fr.belarion.enchants;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
