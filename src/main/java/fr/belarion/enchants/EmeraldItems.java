@@ -16,8 +16,8 @@ public final class EmeraldItems {
     public static ItemStack createSword() {
         ItemStack item = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Épée en Émeraude");
-        meta.setLore(Arrays.asList(ChatColor.DARK_GREEN + "Tier : Émeraude"));
+        meta.setDisplayName(ChatColor.GREEN + "\u00c9p\u00e9e en \u00c9meraude");
+        meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Tier : \u00c9meraude"));
         item.setItemMeta(meta);
         ItemTierUtil.setTier(item, ItemTier.EMERALD);
         return item;
@@ -26,14 +26,24 @@ public final class EmeraldItems {
     public static ItemStack createHammer() {
         ItemStack item = new ItemStack(Material.DIAMOND_PICKAXE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Hammer en Émeraude");
+        meta.setDisplayName(ChatColor.GREEN + "Hammer en \u00c9meraude");
         meta.setLore(Arrays.asList(
-                ChatColor.DARK_GREEN + "Tier : Émeraude",
+                ChatColor.DARK_GRAY + "Tier : \u00c9meraude",
                 ChatColor.GRAY + "Mine en 3x3"
         ));
         item.setItemMeta(meta);
         ItemTierUtil.setTier(item, ItemTier.EMERALD);
         HiddenTag.write(item, TOOL_KEY, "hammer");
+        return item;
+    }
+
+    public static ItemStack createBoots() {
+        ItemStack item = new ItemStack(Material.DIAMOND_BOOTS);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "Bottes en \u00c9meraude");
+        meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Tier : \u00c9meraude"));
+        item.setItemMeta(meta);
+        ItemTierUtil.setTier(item, ItemTier.EMERALD);
         return item;
     }
 
