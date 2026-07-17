@@ -4,28 +4,32 @@ import org.bukkit.ChatColor;
 
 public enum CustomEnchant {
 
-    VAMPIRISME(
-        "vampirisme",
-        "Vampirisme",
-        ChatColor.DARK_RED,
+    SPEED_II(
+        "speed2",
+        "Speed II",
+        ChatColor.AQUA,
         new String[]{
-            "Soigne l'attaquant d'un pourcentage",
-            "des dégâts infligés au corps à corps."
+            "Speed II permanent tant que les",
+            "bottes sont portees."
         },
-        0.20
+        EnchantTarget.BOOTS,
+        1.0
     );
 
     private final String id;
     private final String displayName;
     private final ChatColor color;
     private final String[] lore;
+    private final EnchantTarget target;
     private final double value;
 
-    CustomEnchant(String id, String displayName, ChatColor color, String[] lore, double value) {
+    CustomEnchant(String id, String displayName, ChatColor color, String[] lore,
+                  EnchantTarget target, double value) {
         this.id = id;
         this.displayName = displayName;
         this.color = color;
         this.lore = lore;
+        this.target = target;
         this.value = value;
     }
 
@@ -33,6 +37,7 @@ public enum CustomEnchant {
     public String getDisplayName() { return displayName; }
     public ChatColor getColor() { return color; }
     public String[] getLore() { return lore; }
+    public EnchantTarget getTarget() { return target; }
     public double getValue() { return value; }
 
     public static CustomEnchant fromId(String id) {
