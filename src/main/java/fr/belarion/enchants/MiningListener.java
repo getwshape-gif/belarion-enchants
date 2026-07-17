@@ -46,9 +46,12 @@ public class MiningListener implements Listener {
         Material originalType = origin.getType();
 
         if (autosmelt || magnet) {
+            // BlockBreakEvent#setDropItems n'existe pas dans l'API Spigot 1.8.8 :
+            // on annule l'event et on gere nous-memes la casse + les drops.
             List<ItemStack> drops = new ArrayList<ItemStack>(origin.getDrops(tool));
             if (autosmelt) smelt(drops);
-            event.setDropItems(false);
+            event.setCancelled(true);
+            origin.setType(Material.AIR);
             deliver(player, origin, drops, magnet);
         }
 
