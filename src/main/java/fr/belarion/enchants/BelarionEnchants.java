@@ -31,10 +31,10 @@ public class BelarionEnchants extends JavaPlugin {
             Player player = (Player) sender;
             ItemStack block = new ItemStack(Material.EMERALD_BLOCK);
             ItemMeta meta = block.getItemMeta();
-            meta.setDisplayName(ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "Table d'Enchantement");
+            meta.setDisplayName(ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "Emerald Enchanting Table");
             block.setItemMeta(meta);
             player.getInventory().addItem(block);
-            player.sendMessage(ChatColor.GREEN + "Tu as reçu une Table d'Enchantement. Place-la puis clique-droit dessus.");
+            player.sendMessage(ChatColor.GRAY + "Emerald Enchanting Table re\u00e7ue. Place-la puis clique-droit dessus.");
             return true;
         }
 
@@ -46,10 +46,10 @@ public class BelarionEnchants extends JavaPlugin {
             Player player = (Player) sender;
             ItemStack block = new ItemStack(Material.SEA_LANTERN);
             ItemMeta meta = block.getItemMeta();
-            meta.setDisplayName(ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "Enclume en Émeraude");
+            meta.setDisplayName(ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "Emerald Anvil");
             block.setItemMeta(meta);
             player.getInventory().addItem(block);
-            player.sendMessage(ChatColor.GREEN + "Tu as reçu une Enclume en Émeraude. Place-la puis clique-droit dessus.");
+            player.sendMessage(ChatColor.GRAY + "Emerald Anvil re\u00e7ue. Place-la puis clique-droit dessus.");
             return true;
         }
 
@@ -73,7 +73,7 @@ public class BelarionEnchants extends JavaPlugin {
                 return true;
             }
             player.getInventory().addItem(item);
-            player.sendMessage(ChatColor.GREEN + "Tu as reçu : " + item.getItemMeta().getDisplayName());
+            player.sendMessage(ChatColor.GRAY + "Re\u00e7u  " + item.getItemMeta().getDisplayName());
             return true;
         }
 
