@@ -2,20 +2,20 @@ name: BelarionEnchants
 version: 0.2.0
 main: fr.belarion.enchants.BelarionEnchants
 author: Belarion
-description: Table d'enchantement et Enclume en Emeraude pour Belarion (1.8.8).
+description: Emerald Enchanting Table et Emerald Anvil pour Belarion (1.8.8).
 
 commands:
   enchanttable:
-    description: Donne le bloc de la Table d'Enchantement (bloc d'emeraude).
+    description: Donne le bloc de l'Emerald Enchanting Table.
     usage: /enchanttable
     permission: belarionenchants.admin
   enchantanvil:
-    description: Donne le bloc de l'Enclume en Emeraude (sea lantern).
+    description: Donne le bloc de l'Emerald Anvil.
     usage: /enchantanvil
     permission: belarionenchants.admin
   emeralditem:
-    description: Donne un item emeraude custom (sword, hammer).
-    usage: /emeralditem <sword|hammer>
+    description: Donne un item emeraude custom.
+    usage: /emeralditem <sword|hammer|boots>
     permission: belarionenchants.admin
 
 permissions:
