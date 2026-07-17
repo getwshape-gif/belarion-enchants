@@ -15,12 +15,13 @@ import java.util.Random;
 
 public final class EnchantGUI {
 
-    public static final String TITLE = ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "Table d'Enchantement";
-    public static final String TITLE_LIST = ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "Enchants Disponibles";
+    public static final String TITLE = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "Emerald Enchanting Table";
+    public static final String TITLE_LIST = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "Enchant Library";
     public static final int COST_LEVELS = 60;
 
     public static final int SLOT_BOOK = 11;
-    public static final int SLOT_ENCHANT = 15;
+    public static final int SLOT_ENCHANT = 13;
+    public static final int SLOT_INFO = 15;
     public static final int SLOT_LIST = 22;
     public static final int SLOT_BACK = 22;
 
@@ -30,41 +31,36 @@ public final class EnchantGUI {
 
     public static Inventory build() {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-
-        ItemStack green = pane((short) 13);
-        ItemStack lime = pane((short) 5);
-        for (int i = 0; i < 27; i++) {
-            inv.setItem(i, (i % 2 == 0) ? green : lime);
-        }
-
-        ItemStack info = new ItemStack(Material.ENCHANTMENT_TABLE);
-        ItemMeta infoMeta = info.getItemMeta();
-        infoMeta.setDisplayName(ChatColor.GREEN.toString() + ChatColor.BOLD + "Table d'Enchantement en \u00c9meraude");
-        List<String> infoLore = new ArrayList<String>();
-        infoLore.add(ChatColor.GRAY + "Place un livre vide dans la case,");
-        infoLore.add(ChatColor.GRAY + "clique sur Enchanter et re\u00e7ois un");
-        infoLore.add(ChatColor.GRAY + "enchant custom al\u00e9atoire !");
-        infoMeta.setLore(infoLore);
-        info.setItemMeta(infoMeta);
-        inv.setItem(4, info);
+        fill(inv);
 
         inv.setItem(SLOT_BOOK, null);
 
-        ItemStack enchant = new ItemStack(Material.EXP_BOTTLE);
+        ItemStack enchant = new ItemStack(Material.EMERALD);
         ItemMeta em = enchant.getItemMeta();
-        em.setDisplayName(ChatColor.GREEN.toString() + ChatColor.BOLD + "Enchanter");
+        em.setDisplayName(ChatColor.GREEN.toString() + ChatColor.BOLD + "Enchant");
         List<String> el = new ArrayList<String>();
-        el.add(ChatColor.GRAY + "Co\u00fbt : " + ChatColor.YELLOW + COST_LEVELS + " niveaux");
-        el.add(ChatColor.GRAY + "R\u00e9sultat : " + ChatColor.LIGHT_PURPLE + "un enchant al\u00e9atoire");
+        el.add(ChatColor.DARK_GRAY + "Consomme un livre vierge.");
+        el.add(" ");
+        el.add(ChatColor.GRAY + "Co\u00fbt  " + ChatColor.WHITE + COST_LEVELS + " niveaux");
+        el.add(ChatColor.GRAY + "Gain  " + ChatColor.WHITE + "1 enchant al\u00e9atoire");
         em.setLore(el);
         enchant.setItemMeta(em);
         inv.setItem(SLOT_ENCHANT, enchant);
 
+        ItemStack info = new ItemStack(Material.BOOK);
+        ItemMeta im = info.getItemMeta();
+        im.setDisplayName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Livre vierge");
+        List<String> il = new ArrayList<String>();
+        il.add(ChatColor.DARK_GRAY + "Place-le dans la case de gauche.");
+        im.setLore(il);
+        info.setItemMeta(im);
+        inv.setItem(SLOT_INFO, info);
+
         ItemStack list = new ItemStack(Material.BOOK_AND_QUILL);
         ItemMeta lm = list.getItemMeta();
-        lm.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Enchants disponibles");
+        lm.setDisplayName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Enchant Library");
         List<String> ll = new ArrayList<String>();
-        ll.add(ChatColor.GRAY + "Clique pour voir la liste.");
+        ll.add(ChatColor.DARK_GRAY + "Consulter les enchants disponibles.");
         lm.setLore(ll);
         list.setItemMeta(lm);
         inv.setItem(SLOT_LIST, list);
@@ -74,12 +70,7 @@ public final class EnchantGUI {
 
     public static Inventory buildList() {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE_LIST);
-
-        ItemStack green = pane((short) 13);
-        ItemStack lime = pane((short) 5);
-        for (int i = 0; i < 27; i++) {
-            inv.setItem(i, (i % 2 == 0) ? green : lime);
-        }
+        fill(inv);
 
         int slot = 10;
         for (CustomEnchant enchant : CustomEnchant.values()) {
@@ -90,7 +81,7 @@ public final class EnchantGUI {
 
         ItemStack back = new ItemStack(Material.ARROW);
         ItemMeta bm = back.getItemMeta();
-        bm.setDisplayName(ChatColor.RED.toString() + ChatColor.BOLD + "Retour");
+        bm.setDisplayName(ChatColor.WHITE.toString() + ChatColor.BOLD + "Retour");
         back.setItemMeta(bm);
         inv.setItem(SLOT_BACK, back);
 
@@ -100,28 +91,30 @@ public final class EnchantGUI {
     private static ItemStack buildDisplayItem(CustomEnchant enchant) {
         ItemStack item = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(enchant.getColor().toString() + ChatColor.BOLD + enchant.getDisplayName());
+        meta.setDisplayName(ChatColor.WHITE.toString() + ChatColor.BOLD + enchant.getDisplayName());
         List<String> lore = new ArrayList<String>();
         for (String line : enchant.getLore()) {
-            lore.add(ChatColor.GRAY + line);
+            lore.add(ChatColor.DARK_GRAY + line);
         }
         meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }
 
-    private static ItemStack pane(short color) {
-        ItemStack filler = new ItemStack(Material.STAINED_GLASS_PANE, 1, color);
+    private static void fill(Inventory inv) {
+        ItemStack filler = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
         ItemMeta fm = filler.getItemMeta();
         fm.setDisplayName(" ");
         filler.setItemMeta(fm);
-        return filler;
+        for (int i = 0; i < inv.getSize(); i++) {
+            inv.setItem(i, filler);
+        }
     }
 
     public static void tryEnchant(Player player, Inventory top) {
         ItemStack book = top.getItem(SLOT_BOOK);
         if (book == null || book.getType() != Material.BOOK) {
-            player.sendMessage(ChatColor.RED + "Place un livre vide dans la case \u00e0 gauche.");
+            player.sendMessage(ChatColor.RED + "Place un livre vierge dans la case de gauche.");
             player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
             return;
         }
@@ -150,8 +143,7 @@ public final class EnchantGUI {
             player.getWorld().dropItem(player.getLocation(), leftover);
         }
 
-        player.sendMessage(ChatColor.GREEN + "Le livre s'illumine... Tu obtiens : "
-                + picked.getColor() + ChatColor.BOLD + picked.getDisplayName());
+        player.sendMessage(ChatColor.GRAY + "Enchant obtenu  " + ChatColor.WHITE + ChatColor.BOLD + picked.getDisplayName());
         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1f, 1.2f);
     }
 }
