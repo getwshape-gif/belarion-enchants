@@ -16,8 +16,8 @@ public class BelarionEnchants extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EnchantTableListener(), this);
         getServer().getPluginManager().registerEvents(new EnchantClickListener(), this);
         getServer().getPluginManager().registerEvents(new EmeraldAnvilListener(), this);
-        getServer().getPluginManager().registerEvents(new CombatListener(), this);
         getServer().getPluginManager().registerEvents(new EmeraldHammerListener(), this);
+        new ArmorEffectTask().runTaskTimer(this, 20L, 20L);
         getLogger().info("BelarionEnchants (1.8.8) active.");
     }
 
@@ -60,7 +60,7 @@ public class BelarionEnchants extends JavaPlugin {
             }
             Player player = (Player) sender;
             if (args.length < 1) {
-                player.sendMessage(ChatColor.RED + "Utilisation : /emeralditem <sword|hammer>");
+                player.sendMessage(ChatColor.RED + "Utilisation : /emeralditem <sword|hammer|boots>");
                 return true;
             }
             ItemStack item;
@@ -68,8 +68,10 @@ public class BelarionEnchants extends JavaPlugin {
                 item = EmeraldItems.createSword();
             } else if (args[0].equalsIgnoreCase("hammer")) {
                 item = EmeraldItems.createHammer();
+            } else if (args[0].equalsIgnoreCase("boots")) {
+                item = EmeraldItems.createBoots();
             } else {
-                player.sendMessage(ChatColor.RED + "Item inconnu. Utilise : sword ou hammer");
+                player.sendMessage(ChatColor.RED + "Item inconnu. Utilise : sword, hammer ou boots");
                 return true;
             }
             player.getInventory().addItem(item);
