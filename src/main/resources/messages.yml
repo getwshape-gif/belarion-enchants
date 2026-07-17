@@ -1,0 +1,34 @@
+# =====================================================
+#  BelarionEnchants - messages.yml
+#  Tous les messages envoyes aux joueurs. Codes couleur "&".
+# =====================================================
+
+prefix: "&8[&2Belarion&8] &7"
+
+player-only: "&cCette commande est reservee aux joueurs."
+unknown-item: "&cItem inconnu. Utilise : sword, hammer ou boots"
+item-received: "&7Tu as recu &f%item%"
+
+table-block-received: "&7Emerald Enchanting Table recue. Place-la puis clique-droit dessus."
+anvil-block-received: "&7Emerald Anvil recue. Place-la puis clique-droit dessus."
+
+table:
+  need-book: "&cPlace un livre vierge dans la case prevue."
+  not-enough-levels: "&cIl te manque des niveaux ! (%cost% requis, tu en as %current%)"
+  success: "&7Tu as obtenu &f&l%enchant%"
+
+anvil:
+  need-both: "&cPlace un item Emeraude a gauche et un livre a droite."
+  wrong-tier: "&cLes custom enchants ne s'appliquent que sur du stuff Emeraude."
+  wrong-target: "&c%enchant% s'applique uniquement sur : %target%"
+  already-has: "&c%item% possede deja &f%enchant%&c."
+  not-enough-levels: "&cIl te manque des niveaux ! (%cost% requis)"
+  invalid-book: "&cLe livre a droite n'est pas un livre d'enchantement valide."
+  success: "&7Enchantement applique avec succes."
+  protected: "&cLe stuff Emeraude necessite une Emerald Anvil."
+
+blocks:
+  anvil-unbreakable: "&cCette enclume est incassable."
+  no-explosion: "&7Ce bloc resiste aux explosions."
+
+reload: "&aConfiguration de BelarionEnchants rechargee."

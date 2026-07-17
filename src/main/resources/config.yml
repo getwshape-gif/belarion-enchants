@@ -1,0 +1,17 @@
+# =====================================================
+#  BelarionEnchants - config.yml
+#  Cout en niveaux d'experience des deux blocs custom.
+#  Modifiable sans recompiler le plugin.
+# =====================================================
+
+costs:
+  # Table d'Enchantement Emeraude : niveaux requis pour enchanter un livre vierge
+  enchant-table: 60
+  # Enclume Emeraude : niveaux requis pour combiner item + livre (prix fixe)
+  emerald-anvil: 30
+
+# Nombre de blocs maximum casses en une seule fois par Vein Miner (anti-lag)
+vein-miner-max-blocks: 64
+
+# Taille de page (nombre d'enchants affiches) dans la bibliotheque d'enchants
+library-page-size: 16
