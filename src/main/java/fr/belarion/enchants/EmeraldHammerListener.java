@@ -8,28 +8,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-/**
- * Quand un joueur casse un bloc avec le Hammer Émeraude, les 8 blocs
- * autour (dans le même plan que la face visée) sont cassés aussi, à
- * condition d'être le même type de bloc que celui visé (pour éviter
- * de détruire des constructions/blocs différents par accident).
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class EmeraldHammerListener implements Listener {
-
-    private final BelarionEnchants plugin;
-
-    public EmeraldHammerListener(BelarionEnchants plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        ItemStack tool = player.getInventory().getItemInMainHand();
-        if (!EmeraldItems.isHammer(plugin, tool)) return;
+        ItemStack tool = player.getItemInHand();
+        if (!EmeraldItems.isHammer(tool)) return;
 
         Block center = event.getBlock();
-        BlockFace facing = player.getFacing();
+        BlockFace facing = getFacing(player);
 
         for (Block extra : get3x3Plane(center, facing)) {
             if (extra.getType() == center.getType()) {
@@ -38,35 +29,46 @@ public class EmeraldHammerListener implements Listener {
         }
     }
 
-    /**
-     * Retourne les 8 blocs qui entourent le bloc central, dans le plan
-     * perpendiculaire à la direction où regarde le joueur (donc "3x3
-     * vu de face" plutôt que 3x3 en profondeur).
-     */
-    private Iterable<Block> get3x3Plane(Block center, BlockFace facing) {
-        java.util.List<Block> blocks = new java.util.ArrayList<>();
+    /** Équivalent de player.getFacing() qui n'existe pas en 1.8. */
+    private BlockFace getFacing(Player player) {
+        float pitch = player.getLocation().getPitch();
+        if (pitch < -45f) return BlockFace.UP;
+        if (pitch > 45f) return BlockFace.DOWN;
+
+        float yaw = player.getLocation().getYaw() % 360f;
+        if (yaw < 0) yaw += 360f;
+        if (yaw >= 315f || yaw < 45f) return BlockFace.SOUTH;
+        if (yaw < 135f) return BlockFace.WEST;
+        if (yaw < 225f) return BlockFace.NORTH;
+        return BlockFace.EAST;
+    }
+
+    private List<Block> get3x3Plane(Block center, BlockFace facing) {
+        List<Block> blocks = new ArrayList<Block>();
 
         int[] axis1;
         int[] axis2;
 
         switch (facing) {
-            case NORTH, SOUTH -> {
-                axis1 = new int[]{1, 0, 0}; // x
-                axis2 = new int[]{0, 1, 0}; // y
-            }
-            case EAST, WEST -> {
-                axis1 = new int[]{0, 0, 1}; // z
-                axis2 = new int[]{0, 1, 0}; // y
-            }
-            default -> { // UP, DOWN
-                axis1 = new int[]{1, 0, 0}; // x
-                axis2 = new int[]{0, 0, 1}; // z
-            }
+            case NORTH:
+            case SOUTH:
+                axis1 = new int[]{1, 0, 0};
+                axis2 = new int[]{0, 1, 0};
+                break;
+            case EAST:
+            case WEST:
+                axis1 = new int[]{0, 0, 1};
+                axis2 = new int[]{0, 1, 0};
+                break;
+            default:
+                axis1 = new int[]{1, 0, 0};
+                axis2 = new int[]{0, 0, 1};
+                break;
         }
 
         for (int a = -1; a <= 1; a++) {
             for (int b = -1; b <= 1; b++) {
-                if (a == 0 && b == 0) continue; // le centre est déjà cassé par l'event d'origine
+                if (a == 0 && b == 0) continue;
                 int dx = axis1[0] * a + axis2[0] * b;
                 int dy = axis1[1] * a + axis2[1] * b;
                 int dz = axis1[2] * a + axis2[2] * b;

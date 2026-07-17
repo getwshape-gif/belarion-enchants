@@ -1,25 +1,24 @@
 name: BelarionEnchants
-version: 0.1.0
+version: 0.2.0
 main: fr.belarion.enchants.BelarionEnchants
-api-version: '1.21'
 author: Belarion
-description: Table d'enchantement custom (émeraude) et enchants custom pour Belarion.
+description: Table d'enchantement et Enclume en Emeraude pour Belarion (1.8.8).
 
 commands:
   enchanttable:
-    description: Donne un bloc de table d'enchantement custom (émeraude).
+    description: Donne le bloc de la Table d'Enchantement (bloc d'emeraude).
     usage: /enchanttable
     permission: belarionenchants.admin
   enchantanvil:
-    description: Donne le bloc d'Enclume en Émeraude.
+    description: Donne le bloc de l'Enclume en Emeraude (sea lantern).
     usage: /enchantanvil
     permission: belarionenchants.admin
   emeralditem:
-    description: Donne un item émeraude custom (sword, hammer).
+    description: Donne un item emeraude custom (sword, hammer).
     usage: /emeralditem <sword|hammer>
     permission: belarionenchants.admin
 
 permissions:
   belarionenchants.admin:
-    description: Accès aux commandes admin de BelarionEnchants
+    description: Acces aux commandes admin de BelarionEnchants
     default: op

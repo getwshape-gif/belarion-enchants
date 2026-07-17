@@ -1,25 +1,19 @@
 package fr.belarion.enchants;
 
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
-public class ItemTierUtil {
+public final class ItemTierUtil {
 
-    public static final String PDC_KEY = "belarion_item_tier";
+    public static final String TAG_KEY = "beltier";
 
-    public static void setTier(BelarionEnchants plugin, ItemStack item, ItemTier tier) {
-        ItemMeta meta = item.getItemMeta();
-        NamespacedKey key = new NamespacedKey(plugin, PDC_KEY);
-        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, tier.getId());
-        item.setItemMeta(meta);
+    private ItemTierUtil() {}
+
+    public static void setTier(ItemStack item, ItemTier tier) {
+        HiddenTag.write(item, TAG_KEY, tier.getId());
     }
 
-    public static ItemTier getTier(BelarionEnchants plugin, ItemStack item) {
-        if (item == null || !item.hasItemMeta()) return null;
-        NamespacedKey key = new NamespacedKey(plugin, PDC_KEY);
-        String id = item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING);
+    public static ItemTier getTier(ItemStack item) {
+        String id = HiddenTag.read(item, TAG_KEY);
         if (id == null) return null;
         return ItemTier.fromId(id);
     }

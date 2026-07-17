@@ -13,39 +13,40 @@ public class BelarionEnchants extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getServer().getPluginManager().registerEvents(new EnchantTableListener(this), this);
-        getServer().getPluginManager().registerEvents(new EnchantClickListener(this), this);
-        getServer().getPluginManager().registerEvents(new AnvilApplyListener(this), this);
-        getServer().getPluginManager().registerEvents(new CombatListener(this), this);
-        getServer().getPluginManager().registerEvents(new EmeraldHammerListener(this), this);
-        getServer().getPluginManager().registerEvents(new EmeraldAnvilBlockListener(), this);
-        getLogger().info("BelarionEnchants activé.");
+        getServer().getPluginManager().registerEvents(new EnchantTableListener(), this);
+        getServer().getPluginManager().registerEvents(new EnchantClickListener(), this);
+        getServer().getPluginManager().registerEvents(new EmeraldAnvilListener(), this);
+        getServer().getPluginManager().registerEvents(new CombatListener(), this);
+        getServer().getPluginManager().registerEvents(new EmeraldHammerListener(), this);
+        getLogger().info("BelarionEnchants (1.8.8) active.");
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("enchanttable")) {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof Player)) {
                 sender.sendMessage("Commande joueur uniquement.");
                 return true;
             }
+            Player player = (Player) sender;
             ItemStack block = new ItemStack(Material.EMERALD_BLOCK);
             ItemMeta meta = block.getItemMeta();
-            meta.setDisplayName(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Table d'Enchantement");
+            meta.setDisplayName(ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "Table d'Enchantement");
             block.setItemMeta(meta);
             player.getInventory().addItem(block);
-            player.sendMessage(ChatColor.GREEN + "Tu as reçu une table d'enchantement. Place-la puis clique-droit dessus.");
+            player.sendMessage(ChatColor.GREEN + "Tu as reçu une Table d'Enchantement. Place-la puis clique-droit dessus.");
             return true;
         }
 
         if (command.getName().equalsIgnoreCase("enchantanvil")) {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof Player)) {
                 sender.sendMessage("Commande joueur uniquement.");
                 return true;
             }
-            ItemStack block = new ItemStack(Material.LODESTONE);
+            Player player = (Player) sender;
+            ItemStack block = new ItemStack(Material.SEA_LANTERN);
             ItemMeta meta = block.getItemMeta();
-            meta.setDisplayName(EmeraldAnvilBlockListener.TITLE);
+            meta.setDisplayName(ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "Enclume en Émeraude");
             block.setItemMeta(meta);
             player.getInventory().addItem(block);
             player.sendMessage(ChatColor.GREEN + "Tu as reçu une Enclume en Émeraude. Place-la puis clique-droit dessus.");
@@ -53,20 +54,21 @@ public class BelarionEnchants extends JavaPlugin {
         }
 
         if (command.getName().equalsIgnoreCase("emeralditem")) {
-            if (!(sender instanceof Player player)) {
+            if (!(sender instanceof Player)) {
                 sender.sendMessage("Commande joueur uniquement.");
                 return true;
             }
+            Player player = (Player) sender;
             if (args.length < 1) {
                 player.sendMessage(ChatColor.RED + "Utilisation : /emeralditem <sword|hammer>");
                 return true;
             }
-            ItemStack item = switch (args[0].toLowerCase()) {
-                case "sword" -> EmeraldItems.createSword(this);
-                case "hammer" -> EmeraldItems.createHammer(this);
-                default -> null;
-            };
-            if (item == null) {
+            ItemStack item;
+            if (args[0].equalsIgnoreCase("sword")) {
+                item = EmeraldItems.createSword();
+            } else if (args[0].equalsIgnoreCase("hammer")) {
+                item = EmeraldItems.createHammer();
+            } else {
                 player.sendMessage(ChatColor.RED + "Item inconnu. Utilise : sword ou hammer");
                 return true;
             }
