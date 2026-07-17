@@ -20,7 +20,6 @@ import java.util.Map;
 
 public class EmeraldAnvilListener implements Listener {
 
-    /** Clic droit sur une Sea Lantern = ouvre l'Enclume en Émeraude. */
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -31,12 +30,10 @@ public class EmeraldAnvilListener implements Listener {
         event.getPlayer().openInventory(EmeraldAnvilGUI.build());
     }
 
-    /** Gestion des clics dans le menu de l'Enclume en Émeraude. */
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
 
-        // 1) Blocage du stuff émeraude dans l'enclume VANILLA
         if (event.getInventory() != null && event.getInventory().getType() == InventoryType.ANVIL
                 && !EmeraldAnvilGUI.TITLE.equals(title)) {
             ItemStack current = event.getCurrentItem();
@@ -45,13 +42,12 @@ public class EmeraldAnvilListener implements Listener {
                 event.setCancelled(true);
                 if (event.getWhoClicked() instanceof Player) {
                     ((Player) event.getWhoClicked()).sendMessage(
-                            ChatColor.RED + "Le stuff émeraude nécessite une Enclume en Émeraude.");
+                            ChatColor.RED + "Le stuff \u00e9meraude n\u00e9cessite une Emerald Anvil.");
                 }
             }
             return;
         }
 
-        // 2) Notre menu custom
         if (!EmeraldAnvilGUI.TITLE.equals(title)) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         Player player = (Player) event.getWhoClicked();
@@ -59,13 +55,11 @@ public class EmeraldAnvilListener implements Listener {
         int raw = event.getRawSlot();
         Inventory top = event.getView().getTopInventory();
 
-        // Clics dans l'inventaire du joueur : autorisés (sauf shift-click vers le haut)
         if (raw >= top.getSize()) {
             if (event.isShiftClick()) event.setCancelled(true);
             return;
         }
 
-        // Cases de dépôt : on laisse le joueur poser/reprendre librement
         if (raw == EmeraldAnvilGUI.SLOT_ITEM || raw == EmeraldAnvilGUI.SLOT_BOOK) {
             return;
         }
@@ -78,12 +72,21 @@ public class EmeraldAnvilListener implements Listener {
         ItemStack book = top.getItem(EmeraldAnvilGUI.SLOT_BOOK);
 
         if (base == null || book == null || base.getType() == Material.AIR || book.getType() == Material.AIR) {
-            player.sendMessage(ChatColor.RED + "Place un item émeraude à gauche et un livre à droite.");
+            player.sendMessage(ChatColor.RED + "Place un item \u00e9meraude \u00e0 gauche et un livre \u00e0 droite.");
             return;
         }
 
         if (ItemTierUtil.getTier(base) == null) {
-            player.sendMessage(ChatColor.RED + "Les enchants ne s'appliquent que sur du stuff/outils émeraude ici.");
+            player.sendMessage(ChatColor.RED + "Les enchants ne s'appliquent que sur du stuff/outils \u00e9meraude ici.");
+            player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
+            return;
+        }
+
+        CustomEnchant custom = EnchantBookUtil.readEnchant(book);
+
+        if (custom != null && !custom.getTarget().matches(base)) {
+            player.sendMessage(ChatColor.RED + custom.getDisplayName()
+                    + " s'applique uniquement sur " + custom.getTarget().getLabel() + ".");
             player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
             return;
         }
@@ -94,7 +97,6 @@ public class EmeraldAnvilListener implements Listener {
             return;
         }
 
-        CustomEnchant custom = EnchantBookUtil.readEnchant(book);
         boolean applied = false;
 
         if (custom != null) {
@@ -110,17 +112,16 @@ public class EmeraldAnvilListener implements Listener {
         }
 
         if (!applied) {
-            player.sendMessage(ChatColor.RED + "Le livre à droite n'est pas un livre d'enchantement valide.");
+            player.sendMessage(ChatColor.RED + "Le livre \u00e0 droite n'est pas un livre d'enchantement valide.");
             return;
         }
 
         player.setLevel(player.getLevel() - EmeraldAnvilGUI.COST_LEVELS);
         top.setItem(EmeraldAnvilGUI.SLOT_BOOK, null);
-        player.sendMessage(ChatColor.GREEN + "Enchantement appliqué !");
+        player.sendMessage(ChatColor.GRAY + "Enchantement appliqu\u00e9.");
         player.playSound(player.getLocation(), Sound.ANVIL_USE, 1f, 1f);
     }
 
-    /** Rend les items posés dans le menu quand on le ferme. */
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
         if (!EmeraldAnvilGUI.TITLE.equals(event.getView().getTitle())) return;
