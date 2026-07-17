@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * En 1.8 il n'y a pas de PersistentDataContainer pour stocker des données
- * cachées sur un item. Technique classique : on encode une chaîne en la
- * rendant invisible (chaque caractère précédé du caractère de couleur §),
- * et on la colle au début d'une ligne de lore. Invisible pour le joueur,
- * lisible par le plugin.
+ * En 1.8 il n'y a pas de PersistentDataContainer pour stocker des donnees
+ * cachees sur un item. Technique : on encode "cle:valeur" en precedant
+ * chaque caractere du code couleur (invisible en jeu), et on colle ca
+ * dans une ligne de lore. Invisible pour le joueur, lisible par le plugin.
+ *
+ * write() remplace toujours la ligne existante portant la meme cle au lieu
+ * d'en ajouter une nouvelle : un tag ne peut donc jamais etre duplique.
  */
 public final class HiddenTag {
 
@@ -27,7 +29,7 @@ public final class HiddenTag {
         return sb.toString();
     }
 
-    /** Retourne la valeur du tag présent sur l'item pour cette clé, sinon null. */
+    /** Retourne la valeur du tag present sur l'item pour cette cle, sinon null. */
     public static String read(ItemStack item, String key) {
         if (item == null || !item.hasItemMeta()) return null;
         ItemMeta meta = item.getItemMeta();
@@ -41,13 +43,58 @@ public final class HiddenTag {
         return null;
     }
 
-    /** Ajoute une ligne de lore invisible portant le tag. */
+    /** Ecrit (ou remplace si deja present) une ligne de lore invisible portant le tag. */
     public static void write(ItemStack item, String key, String value) {
         ItemMeta meta = item.getItemMeta();
         List<String> lore = meta.hasLore() ? new ArrayList<String>(meta.getLore()) : new ArrayList<String>();
-        lore.add(encode(key, value));
+
+        String newLine = encode(key, value);
+        boolean replaced = false;
+        for (int i = 0; i < lore.size(); i++) {
+            String decoded = decode(lore.get(i));
+            if (decoded != null && decoded.startsWith(key + ":")) {
+                lore.set(i, newLine);
+                replaced = true;
+                break;
+            }
+        }
+        if (!replaced) {
+            lore.add(newLine);
+        }
+
         meta.setLore(lore);
         item.setItemMeta(meta);
+    }
+
+    /** Supprime la ligne de lore invisible portant cette cle, si presente. */
+    public static void remove(ItemStack item, String key) {
+        if (item == null || !item.hasItemMeta()) return;
+        ItemMeta meta = item.getItemMeta();
+        if (!meta.hasLore()) return;
+        List<String> lore = new ArrayList<String>(meta.getLore());
+        boolean changed = false;
+        for (int i = lore.size() - 1; i >= 0; i--) {
+            String decoded = decode(lore.get(i));
+            if (decoded != null && decoded.startsWith(key + ":")) {
+                lore.remove(i);
+                changed = true;
+            }
+        }
+        if (changed) {
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+    }
+
+    /** true si la ligne est entierement composee de caracteres invisibles (une ligne de tag). */
+    public static boolean isHiddenLine(String line) {
+        return decode(line) != null;
+    }
+
+    /** true si cette ligne est precisement le tag cache correspondant a cette cle. */
+    public static boolean matchesKey(String line, String key) {
+        String decoded = decode(line);
+        return decoded != null && decoded.startsWith(key + ":");
     }
 
     private static String decode(String line) {
@@ -59,6 +106,7 @@ public final class HiddenTag {
             sb.append(chars[i + 1]);
             i += 2;
         }
+        if (i != chars.length) return null;
         if (sb.length() == 0) return null;
         return sb.toString();
     }

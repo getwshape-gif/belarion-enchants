@@ -7,6 +7,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
+/**
+ * Items de demonstration / admin (commande /emeralditem). Sert aussi de
+ * modele pour la creation future de nouveaux items emeraude (marteaux,
+ * haches, armures, arcs...) : il suffit de suivre le meme patron
+ * (ItemTierUtil.setTier + tags specifiques si besoin).
+ */
 public final class EmeraldItems {
 
     public static final String TOOL_KEY = "beltool";
@@ -16,8 +22,8 @@ public final class EmeraldItems {
     public static ItemStack createSword() {
         ItemStack item = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "\u00c9p\u00e9e en \u00c9meraude");
-        meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Tier : \u00c9meraude"));
+        meta.setDisplayName(ChatColor.GREEN + "Epee en Emeraude");
+        meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Tier : Emeraude"));
         item.setItemMeta(meta);
         ItemTierUtil.setTier(item, ItemTier.EMERALD);
         return item;
@@ -26,9 +32,9 @@ public final class EmeraldItems {
     public static ItemStack createHammer() {
         ItemStack item = new ItemStack(Material.DIAMOND_PICKAXE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Hammer en \u00c9meraude");
+        meta.setDisplayName(ChatColor.GREEN + "Hammer en Emeraude");
         meta.setLore(Arrays.asList(
-                ChatColor.DARK_GRAY + "Tier : \u00c9meraude",
+                ChatColor.DARK_GRAY + "Tier : Emeraude",
                 ChatColor.GRAY + "Mine en 3x3"
         ));
         item.setItemMeta(meta);
@@ -40,8 +46,8 @@ public final class EmeraldItems {
     public static ItemStack createBoots() {
         ItemStack item = new ItemStack(Material.DIAMOND_BOOTS);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Bottes en \u00c9meraude");
-        meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Tier : \u00c9meraude"));
+        meta.setDisplayName(ChatColor.GREEN + "Bottes en Emeraude");
+        meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Tier : Emeraude"));
         item.setItemMeta(meta);
         ItemTierUtil.setTier(item, ItemTier.EMERALD);
         return item;

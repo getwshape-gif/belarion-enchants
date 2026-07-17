@@ -1,6 +1,5 @@
 package fr.belarion.enchants;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
@@ -18,6 +17,11 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.Map;
 
+/**
+ * Gere l'Enclume Emeraude : ouverture (clic droit sur Sea Lantern), la
+ * combinaison item + livre (custom multi-enchant OU vanilla classique),
+ * et empeche l'usage d'une vraie enclume vanilla sur du stuff emeraude.
+ */
 public class EmeraldAnvilListener implements Listener {
 
     @EventHandler
@@ -34,15 +38,15 @@ public class EmeraldAnvilListener implements Listener {
     public void onClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
 
+        // Empeche de traiter du stuff emeraude dans une VRAIE enclume vanilla.
         if (event.getInventory() != null && event.getInventory().getType() == InventoryType.ANVIL
                 && !EmeraldAnvilGUI.TITLE.equals(title)) {
             ItemStack current = event.getCurrentItem();
             ItemStack cursor = event.getCursor();
-            if (ItemTierUtil.getTier(current) != null || ItemTierUtil.getTier(cursor) != null) {
+            if (ItemTierUtil.isEmeraldTier(current) || ItemTierUtil.isEmeraldTier(cursor)) {
                 event.setCancelled(true);
                 if (event.getWhoClicked() instanceof Player) {
-                    ((Player) event.getWhoClicked()).sendMessage(
-                            ChatColor.RED + "Le stuff \u00e9meraude n\u00e9cessite une Emerald Anvil.");
+                    BelarionEnchants.get().getMessagesManager().send((Player) event.getWhoClicked(), "anvil.protected");
                 }
             }
             return;
@@ -68,42 +72,60 @@ public class EmeraldAnvilListener implements Listener {
 
         if (raw != EmeraldAnvilGUI.SLOT_CONFIRM) return;
 
+        forge(player, top);
+    }
+
+    private void forge(Player player, Inventory top) {
+        MessagesManager msg = BelarionEnchants.get().getMessagesManager();
+
         ItemStack base = top.getItem(EmeraldAnvilGUI.SLOT_ITEM);
         ItemStack book = top.getItem(EmeraldAnvilGUI.SLOT_BOOK);
 
         if (base == null || book == null || base.getType() == Material.AIR || book.getType() == Material.AIR) {
-            player.sendMessage(ChatColor.RED + "Place un item \u00e9meraude \u00e0 gauche et un livre \u00e0 droite.");
+            msg.send(player, "anvil.need-both");
             return;
         }
 
-        if (ItemTierUtil.getTier(base) == null) {
-            player.sendMessage(ChatColor.RED + "Les enchants ne s'appliquent que sur du stuff/outils \u00e9meraude ici.");
+        if (!ItemTierUtil.isEmeraldTier(base)) {
+            msg.send(player, "anvil.wrong-tier");
             player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
             return;
         }
 
         CustomEnchant custom = EnchantBookUtil.readEnchant(book);
-
-        if (custom != null && !custom.getTarget().matches(base)) {
-            player.sendMessage(ChatColor.RED + custom.getDisplayName()
-                    + " s'applique uniquement sur " + custom.getTarget().getLabel() + ".");
-            player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
-            return;
-        }
-
-        if (player.getLevel() < EmeraldAnvilGUI.COST_LEVELS) {
-            player.sendMessage(ChatColor.RED + "Il te manque des niveaux ! (" + EmeraldAnvilGUI.COST_LEVELS + " requis)");
-            player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
-            return;
-        }
-
         boolean applied = false;
 
         if (custom != null) {
-            EnchantBookUtil.applyToItem(base, custom);
-            applied = true;
-        } else if (book.getType() == Material.ENCHANTED_BOOK
-                && book.getItemMeta() instanceof EnchantmentStorageMeta) {
+            CompatibilityManager.Result result = CompatibilityManager.check(base, custom);
+            if (result == CompatibilityManager.Result.WRONG_TARGET) {
+                msg.send(player, "anvil.wrong-target", "enchant", custom.getDisplayName(), "target", custom.getTarget().getLabel());
+                player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
+                return;
+            }
+            if (result == CompatibilityManager.Result.ALREADY_APPLIED) {
+                msg.send(player, "anvil.already-has", "item", base.getItemMeta().getDisplayName(), "enchant", custom.getDisplayName());
+                player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
+                return;
+            }
+            // result == OK (tier deja verifie plus haut)
+        } else if (!(book.getType() == Material.ENCHANTED_BOOK && book.getItemMeta() instanceof EnchantmentStorageMeta)) {
+            msg.send(player, "anvil.invalid-book");
+            return;
+        }
+
+        int cost = BelarionEnchants.get().getConfigManager().getEmeraldAnvilCost();
+        if (player.getLevel() < cost) {
+            msg.send(player, "anvil.not-enough-levels", "cost", String.valueOf(cost));
+            player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
+            return;
+        }
+
+        if (custom != null) {
+            applied = EnchantStorage.addEnchant(base, custom);
+            if (applied && custom.isVanillaEquivalent()) {
+                base.addUnsafeEnchantment(custom.getVanillaEquivalent(), custom.getVanillaLevel());
+            }
+        } else {
             EnchantmentStorageMeta esm = (EnchantmentStorageMeta) book.getItemMeta();
             for (Map.Entry<Enchantment, Integer> entry : esm.getStoredEnchants().entrySet()) {
                 base.addUnsafeEnchantment(entry.getKey(), entry.getValue());
@@ -112,13 +134,13 @@ public class EmeraldAnvilListener implements Listener {
         }
 
         if (!applied) {
-            player.sendMessage(ChatColor.RED + "Le livre \u00e0 droite n'est pas un livre d'enchantement valide.");
+            msg.send(player, "anvil.invalid-book");
             return;
         }
 
-        player.setLevel(player.getLevel() - EmeraldAnvilGUI.COST_LEVELS);
+        player.setLevel(player.getLevel() - cost);
         top.setItem(EmeraldAnvilGUI.SLOT_BOOK, null);
-        player.sendMessage(ChatColor.GRAY + "Enchantement appliqu\u00e9.");
+        msg.send(player, "anvil.success");
         player.playSound(player.getLocation(), Sound.ANVIL_USE, 1f, 1f);
     }
 

@@ -17,4 +17,8 @@ public final class ItemTierUtil {
         if (id == null) return null;
         return ItemTier.fromId(id);
     }
+
+    public static boolean isEmeraldTier(ItemStack item) {
+        return getTier(item) != null;
+    }
 }

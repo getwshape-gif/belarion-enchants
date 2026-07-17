@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Le Hammer en Emeraude mine en 3x3 autour du bloc casse (item de demonstration). */
 public class EmeraldHammerListener implements Listener {
 
     @EventHandler
@@ -29,7 +30,7 @@ public class EmeraldHammerListener implements Listener {
         }
     }
 
-    /** Équivalent de player.getFacing() qui n'existe pas en 1.8. */
+    /** Equivalent de player.getFacing() qui n'existe pas en 1.8. */
     private BlockFace getFacing(Player player) {
         float pitch = player.getLocation().getPitch();
         if (pitch < -45f) return BlockFace.UP;
