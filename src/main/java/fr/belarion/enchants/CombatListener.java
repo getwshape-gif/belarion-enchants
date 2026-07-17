@@ -26,7 +26,7 @@ public class CombatListener implements Listener {
         if (enchant != CustomEnchant.VAMPIRISME) return;
 
         double heal = event.getFinalDamage() * enchant.getValue();
-        double maxHealth = attacker.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        double maxHealth = attacker.getAttribute(Attribute.MAX_HEALTH).getValue();
         attacker.setHealth(Math.min(maxHealth, attacker.getHealth() + heal));
     }
 }
