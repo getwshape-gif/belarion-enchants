@@ -25,4 +25,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BelarionEnchants-jar
-          path: target/BelarionEnchants-0.2.0.jar
+          path: target/*.jar
