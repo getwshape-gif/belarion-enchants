@@ -46,9 +46,6 @@ public class BelarionEnchants extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DamageListener(), this);
         getServer().getPluginManager().registerEvents(new PotionProtectionListener(), this);
 
-        // Item de demonstration (Hammer)
-        getServer().getPluginManager().registerEvents(new EmeraldHammerListener(), this);
-
         // Effets passifs permanents (Speed, Strength, Fire Resistance, Haste) : 1 fois/seconde
         effectManager = new EffectManager();
         effectManager.runTaskTimer(this, 20L, 20L);
@@ -98,6 +95,17 @@ public class BelarionEnchants extends JavaPlugin {
         }
         Player player = (Player) sender;
 
+        if (name.equalsIgnoreCase("enchants")) {
+            if (!player.hasPermission("blarionenchants.command.enchants")) {
+                messagesManager.send(player, "no-permission");
+                return true;
+            }
+            // Ouvre exactement le meme GUI que le bouton Bibliotheque de la
+            // table d'enchantement : une seule version du GUI a maintenir.
+            player.openInventory(EnchantLibraryGUI.build(0));
+            return true;
+        }
+
         if (name.equalsIgnoreCase("enchanttable")) {
             ItemStack block = new ItemStack(Material.EMERALD_BLOCK);
             ItemMeta meta = block.getItemMeta();
@@ -115,27 +123,6 @@ public class BelarionEnchants extends JavaPlugin {
             block.setItemMeta(meta);
             player.getInventory().addItem(block);
             messagesManager.send(player, "anvil-block-received");
-            return true;
-        }
-
-        if (name.equalsIgnoreCase("emeralditem")) {
-            if (args.length < 1) {
-                player.sendMessage(ChatColor.RED + "Utilisation : /emeralditem <sword|hammer|boots>");
-                return true;
-            }
-            ItemStack item;
-            if (args[0].equalsIgnoreCase("sword")) {
-                item = EmeraldItems.createSword();
-            } else if (args[0].equalsIgnoreCase("hammer")) {
-                item = EmeraldItems.createHammer();
-            } else if (args[0].equalsIgnoreCase("boots")) {
-                item = EmeraldItems.createBoots();
-            } else {
-                messagesManager.send(player, "unknown-item");
-                return true;
-            }
-            player.getInventory().addItem(item);
-            messagesManager.send(player, "item-received", "item", item.getItemMeta().getDisplayName());
             return true;
         }
 
