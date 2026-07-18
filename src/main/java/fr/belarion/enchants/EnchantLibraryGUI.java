@@ -11,33 +11,31 @@ import org.bukkit.inventory.meta.ItemMeta;
  * Bibliotheque d'Enchants : liste absolument tous les custom enchants
  * disponibles avec nom / description / compatibilite / effet.
  *
- * Disposition fixe et volontairement centree : les enchants n'occupent
- * jamais que les slots 11-17 et 20-25 (sous-ensemble des 14 slots
- * 11,12,13,14,15,16,17,20,21,22,23,24,25,26 autorises pour l'affichage),
- * le slot 26 (coin bas-droite) etant reserve en permanence a la fleche
- * de pagination "Page suivante". Cette disposition est identique sur
- * TOUTES les pages, y compris les futures : ajouter un nouvel enchant
- * dans CustomEnchant remplit simplement la page courante puis, une fois
- * pleine, cree automatiquement une page suivante qui reprend exactement
- * le meme gabarit, sans aucun changement de code necessaire ici.
+ * Disposition fixe et volontairement centree : chaque page peut contenir
+ * jusqu'a 14 custom enchants, places exclusivement dans les slots
+ * 11,12,13,14,15,16,17,20,21,22,23,24,25,26. Les boutons de navigation
+ * (9 = page precedente, 18 = page suivante) restent en dehors de cette
+ * zone d'affichage afin qu'elle ne soit jamais amputee. Cette disposition
+ * est identique sur TOUTES les pages, y compris les futures : ajouter un
+ * 15e enchant dans CustomEnchant remplit simplement la page courante puis,
+ * une fois pleine, cree automatiquement une page suivante qui reprend
+ * exactement le meme gabarit, sans aucun changement de code necessaire ici.
  */
 public final class EnchantLibraryGUI {
 
     public static final String TITLE = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "Bibliotheque d'Enchants";
 
     public static final int SLOT_BACK = 4;
-    public static final int SLOT_PREV = 18;
-    public static final int SLOT_NEXT = 26;
+    public static final int SLOT_PREV = 9;
+    public static final int SLOT_NEXT = 18;
 
     /**
      * Disposition fixe et definitive des enchants, identique sur toutes les
-     * pages. Sous-ensemble (13 slots) des 14 slots autorises : le 14e slot
-     * (26, coin bas-droite) est reserve a la fleche "Page suivante", toujours
-     * visible, prete pour les futures pages.
+     * pages : 14 slots exactement, jamais plus, jamais moins.
      */
     private static final int[] DISPLAY_SLOTS = new int[]{
             11, 12, 13, 14, 15, 16, 17,
-            20, 21, 22, 23, 24, 25
+            20, 21, 22, 23, 24, 25, 26
     };
 
     private EnchantLibraryGUI() {}
@@ -50,7 +48,7 @@ public final class EnchantLibraryGUI {
         if (page > maxPage) page = maxPage;
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        GuiUtil.fillPremiumBackground(inv, new int[]{0, 8, 17, 26});
+        GuiUtil.fillPremiumBackground(inv, new int[]{0, 8, 9, 18});
 
         ItemStack back = GuiUtil.button(Material.ARROW, ChatColor.WHITE, "Retour",
                 GuiUtil.SEPARATOR, ChatColor.GRAY + "Retour a la table.", GuiUtil.SEPARATOR);
@@ -65,9 +63,9 @@ public final class EnchantLibraryGUI {
             inv.setItem(DISPLAY_SLOTS[i], buildDisplayItem(all[start + i]));
         }
 
-        // Fleche "Page suivante" : toujours presente en bas a droite, meme
-        // s'il n'existe qu'une seule page (systeme pret pour les futurs
-        // enchants). Grisee/inactive tant qu'il n'y a rien apres, verte et
+        // Fleche "Page suivante" : toujours presente, meme s'il n'existe
+        // qu'une seule page (systeme pret pour les futurs enchants).
+        // Grisee/inactive tant qu'il n'y a rien apres, verte et
         // fonctionnelle des qu'une page suivante existe.
         boolean hasNext = start + pageSize < all.length;
         inv.setItem(SLOT_NEXT, buildNextButton(hasNext));
