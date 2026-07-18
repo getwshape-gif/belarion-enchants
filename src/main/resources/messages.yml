@@ -29,7 +29,7 @@ anvil:
   protected: "&cLe stuff Emeraude necessite une Emerald Anvil."
 
 blocks:
-  anvil-unbreakable: "&cCette enclume est incassable."
+  need-pickaxe: "&cIl faut une pioche pour casser ce bloc."
   no-explosion: "&7Ce bloc resiste aux explosions."
 
 reload: "&aConfiguration de BelarionEnchants rechargee."
