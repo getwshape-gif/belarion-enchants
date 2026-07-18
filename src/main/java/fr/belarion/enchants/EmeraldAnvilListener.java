@@ -183,7 +183,20 @@ public class EmeraldAnvilListener implements Listener {
         }
 
         player.setLevel(player.getLevel() - cost);
+
+        // Comme une vraie enclume : le resultat part directement dans
+        // l'inventaire du joueur, les deux slots d'entree sont vides
+        // immediatement. "base" est retire du GUI avant d'etre donne, il
+        // ne peut donc jamais se retrouver a la fois dans l'enclume et
+        // dans l'inventaire (pas de duplication possible).
+        top.setItem(EmeraldAnvilGUI.SLOT_ITEM, null);
         top.setItem(EmeraldAnvilGUI.SLOT_BOOK, null);
+
+        Map<Integer, ItemStack> leftovers = player.getInventory().addItem(base);
+        for (ItemStack leftover : leftovers.values()) {
+            player.getWorld().dropItem(player.getLocation(), leftover);
+        }
+
         msg.send(player, "anvil.success");
         player.playSound(player.getLocation(), Sound.ANVIL_USE, 1f, 1f);
     }

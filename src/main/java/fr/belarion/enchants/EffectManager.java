@@ -13,19 +13,31 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Tache centrale unique qui gere TOUS les effets passifs des custom enchants
- * (Speed, Strength, Fire Resistance, Haste II, Anti Debuff).
+ * Tache centrale unique qui gere les effets passifs "permanents" des custom
+ * enchants (Speed, Strength, Fire Resistance, Haste II).
  *
- * Un seul BukkitRunnable pour tout le plugin, execute une fois par seconde
- * (20 ticks) au lieu de multiplier les listeners/tasks par enchant : c'est
- * le point d'optimisation principal pour un serveur avec beaucoup de
- * joueurs. Pour chaque joueur on ne lit qu'une fois l'armure + l'item en
- * main, on en deduit l'ensemble des enchants actifs, puis on applique les
- * effets correspondants.
+ * Ces effets sont appliques avec une duree tres longue (LONG_DURATION) et ne
+ * sont RE-appliques que lorsqu'ils sont absents ou sur le point d'expirer
+ * (REFRESH_THRESHOLD) : contrairement a une ancienne version qui reappliquait
+ * un effet de 3 secondes toutes les secondes (ce qui faisait clignoter un
+ * timer visible autour de "2 secondes"), le joueur voit ici un effet stable,
+ * sans interruption ni clignotement. Des qu'un enchant n'est plus actif
+ * (item retire), l'effet correspondant est retire immediatement au lieu
+ * d'attendre son expiration naturelle.
+ *
+ * Anti Debuff n'est plus gere ici : la reactivite requise (bloquer un
+ * debuff avant meme qu'il soit visible) est assuree par AntiDebuffGuardTask
+ * (frequence tres elevee) et par PotionProtectionListener (annulation des
+ * potions lancees avant application).
  */
 public class EffectManager extends BukkitRunnable {
 
-    private static final PotionEffectType[] NEGATIVE_EFFECTS = new PotionEffectType[]{
+    /** Duree tres longue (~13h88) utilisee pour simuler un effet permanent. */
+    private static final int LONG_DURATION = 1_000_000;
+    /** Si la duree restante d'un effet descend sous ce seuil, on le rafraichit. */
+    private static final int REFRESH_THRESHOLD = 40;
+
+    public static final PotionEffectType[] NEGATIVE_EFFECTS = new PotionEffectType[]{
             PotionEffectType.POISON,
             PotionEffectType.SLOW,
             PotionEffectType.WEAKNESS,
@@ -35,6 +47,13 @@ public class EffectManager extends BukkitRunnable {
             PotionEffectType.HUNGER,
             PotionEffectType.CONFUSION
     };
+
+    public static boolean isNegative(PotionEffectType type) {
+        for (PotionEffectType negative : NEGATIVE_EFFECTS) {
+            if (negative.equals(type)) return true;
+        }
+        return false;
+    }
 
     @Override
     public void run() {
@@ -56,33 +75,39 @@ public class EffectManager extends BukkitRunnable {
         List<CustomEnchant> heldEnchants = held != null ? EnchantStorage.getEnchants(held) : null;
         boolean haste = heldEnchants != null && heldEnchants.contains(CustomEnchant.HASTE_II);
 
-        if (active.contains(CustomEnchant.SPEED)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, true, false), true);
+        applyOrRemove(player, active.contains(CustomEnchant.SPEED), PotionEffectType.SPEED, 1);
+        applyOrRemove(player, active.contains(CustomEnchant.STRENGTH), PotionEffectType.INCREASE_DAMAGE, 0);
+        applyOrRemove(player, active.contains(CustomEnchant.FIRE_RESISTANCE), PotionEffectType.FIRE_RESISTANCE, 0);
+        applyOrRemove(player, haste, PotionEffectType.FAST_DIGGING, 1);
+    }
+
+    private void applyOrRemove(Player player, boolean shouldBeActive, PotionEffectType type, int amplifier) {
+        if (shouldBeActive) {
+            applyPermanent(player, type, amplifier);
+        } else if (player.hasPotionEffect(type)) {
+            player.removePotionEffect(type);
         }
-        if (active.contains(CustomEnchant.STRENGTH)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 60, 0, true, false), true);
+    }
+
+    /**
+     * N'ecrit un nouvel effet que si necessaire (absent, mauvais amplifier,
+     * ou duree restante trop courte) pour ne jamais faire clignoter/reset
+     * un timer visible pour rien.
+     */
+    private void applyPermanent(Player player, PotionEffectType type, int amplifier) {
+        for (PotionEffect existing : player.getActivePotionEffects()) {
+            if (existing.getType().equals(type)) {
+                if (existing.getAmplifier() == amplifier && existing.getDuration() > REFRESH_THRESHOLD) {
+                    return;
+                }
+                break;
+            }
         }
-        if (active.contains(CustomEnchant.FIRE_RESISTANCE)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 60, 0, true, false), true);
-        }
-        if (haste) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 60, 1, true, false), true);
-        }
-        if (active.contains(CustomEnchant.ANTI_DEBUFF)) {
-            cleanseNegativeEffects(player);
-        }
+        player.addPotionEffect(new PotionEffect(type, LONG_DURATION, amplifier, true, false), true);
     }
 
     private void collect(ItemStack item, Set<CustomEnchant> into) {
         if (item == null || !ItemTierUtil.isEmeraldTier(item)) return;
         into.addAll(EnchantStorage.getEnchants(item));
-    }
-
-    private void cleanseNegativeEffects(Player player) {
-        for (PotionEffectType type : NEGATIVE_EFFECTS) {
-            if (player.hasPotionEffect(type)) {
-                player.removePotionEffect(type);
-            }
-        }
     }
 }

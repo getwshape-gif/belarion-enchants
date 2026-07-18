@@ -1,15 +1,23 @@
 package fr.belarion.enchants;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 /**
- * Anti Rod : empeche un joueur portant l'enchant sur son armure d'etre
- * attire/deseauilibre par une canne a peche ennemie (state CAUGHT_ENTITY).
+ * Anti Rod : rend la canne a peche totalement inoffensive contre un joueur
+ * qui porte l'enchant. Trois couches de protection :
+ *  1) PlayerFishEvent(CAUGHT_ENTITY) annule des la collision du hameçon.
+ *  2) Le hameçon est retire et la velocite du joueur restauree au tick
+ *     suivant, au cas ou une pull aurait deja ete appliquee.
+ *  3) EntityDamageByEntityEvent annule si le degat provient d'un FishHook.
  */
 public class FishingListener implements Listener {
 
@@ -19,10 +27,38 @@ public class FishingListener implements Listener {
 
         Entity caught = event.getCaught();
         if (!(caught instanceof Player)) return;
-        Player victim = (Player) caught;
+        final Player victim = (Player) caught;
 
         if (!hasAntiRod(victim)) return;
+
         event.setCancelled(true);
+
+        final Entity hook = event.getHook();
+        final Vector safeVelocity = victim.getVelocity();
+
+        // Filet de securite : sur certaines implementations 1.8, la pull peut
+        // deja avoir ete calculee au moment ou l'event est leve. On force la
+        // velocite d'origine et on retire le hameçon au tick suivant.
+        Bukkit.getScheduler().runTask(BelarionEnchants.get(), new Runnable() {
+            @Override
+            public void run() {
+                victim.setVelocity(safeVelocity);
+                if (hook != null && !hook.isDead()) {
+                    hook.remove();
+                }
+            }
+        });
+    }
+
+    @EventHandler
+    public void onHookDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof FishHook)) return;
+        if (!(event.getEntity() instanceof Player)) return;
+
+        Player victim = (Player) event.getEntity();
+        if (hasAntiRod(victim)) {
+            event.setCancelled(true);
+        }
     }
 
     private boolean hasAntiRod(Player player) {

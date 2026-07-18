@@ -16,6 +16,7 @@ public class BelarionEnchants extends JavaPlugin {
     private ConfigManager configManager;
     private MessagesManager messagesManager;
     private EffectManager effectManager;
+    private AntiDebuffGuardTask antiDebuffGuardTask;
 
     public static BelarionEnchants get() {
         return instance;
@@ -43,13 +44,18 @@ public class BelarionEnchants extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CombatListener(), this);
         getServer().getPluginManager().registerEvents(new FishingListener(), this);
         getServer().getPluginManager().registerEvents(new DamageListener(), this);
+        getServer().getPluginManager().registerEvents(new PotionProtectionListener(), this);
 
         // Item de demonstration (Hammer)
         getServer().getPluginManager().registerEvents(new EmeraldHammerListener(), this);
 
-        // Effets passifs centralises (Speed, Strength, Fire Resistance, Haste, Anti Debuff)
+        // Effets passifs permanents (Speed, Strength, Fire Resistance, Haste) : 1 fois/seconde
         effectManager = new EffectManager();
         effectManager.runTaskTimer(this, 20L, 20L);
+
+        // Garde Anti Debuff : tres haute frequence (0.1s) pour une reactivite quasi instantanee
+        antiDebuffGuardTask = new AntiDebuffGuardTask();
+        antiDebuffGuardTask.runTaskTimer(this, 1L, 2L);
 
         getLogger().info("BelarionEnchants v1.0.0 (1.8.8) actif : " + CustomEnchant.values().length + " custom enchants charges.");
     }
@@ -58,6 +64,9 @@ public class BelarionEnchants extends JavaPlugin {
     public void onDisable() {
         if (effectManager != null) {
             effectManager.cancel();
+        }
+        if (antiDebuffGuardTask != null) {
+            antiDebuffGuardTask.cancel();
         }
     }
 
