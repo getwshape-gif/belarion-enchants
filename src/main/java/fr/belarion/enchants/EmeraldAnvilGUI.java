@@ -7,22 +7,28 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * GUI de l'Enclume Emeraude : 27 slots, fond premium.
+ * GUI de l'Enclume Emeraude : 27 slots, meme style premium que la Table
+ * d'Enchantement Emeraude (gris fonce dominant, bordures gris clair,
+ * accents emeraude autour des slots fonctionnels), pour une identite
+ * visuelle coherente entre les deux interfaces.
  * Item emeraude : slot 11. Livre (vanilla ou custom) : slot 15. Forger : slot 13.
  * Prix fixe (config.yml costs.emerald-anvil, 30 niveaux par defaut), toujours.
  */
 public final class EmeraldAnvilGUI {
 
-    public static final String TITLE = ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "✦ Enclume Emeraude ✦";
+    public static final String TITLE = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "✦ Enclume Emeraude ✦";
     public static final int SLOT_ITEM = 11;
     public static final int SLOT_CONFIRM = 13;
     public static final int SLOT_BOOK = 15;
+
+    /** Vitres emeraude decoratives encadrant les trois slots fonctionnels. */
+    private static final int[] ACCENT_SLOTS = new int[]{10, 12, 14, 16};
 
     private EmeraldAnvilGUI() {}
 
     public static Inventory build() {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        GuiUtil.fillBackground(inv);
+        GuiUtil.fillPremiumBackground(inv, ACCENT_SLOTS);
 
         inv.setItem(SLOT_ITEM, null);
         inv.setItem(SLOT_BOOK, null);

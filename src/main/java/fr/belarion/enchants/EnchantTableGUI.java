@@ -29,7 +29,7 @@ public final class EnchantTableGUI {
     public static final int SLOT_LIBRARY = 26;
 
     /** Vitres emeraude decoratives encadrant les slots fonctionnels. */
-    private static final int[] ACCENT_SLOTS = new int[]{12, 14, 21, 23, 25};
+    private static final int[] ACCENT_SLOTS = new int[]{12, 14, 21, 23};
 
     private static final Random RANDOM = new Random();
 
@@ -38,6 +38,8 @@ public final class EnchantTableGUI {
     public static Inventory build() {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
         GuiUtil.fillPremiumBackground(inv, ACCENT_SLOTS);
+        // Avant-derniere case (slot 25) : vitre blanche pour la symetrie avec le reste du fond.
+        inv.setItem(25, GuiUtil.pane(GuiUtil.GLASS_WHITE));
 
         inv.setItem(SLOT_BOOK, null);
         inv.setItem(SLOT_ENCHANT, buildEnchantButton());
