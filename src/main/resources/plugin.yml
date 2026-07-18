@@ -13,10 +13,6 @@ commands:
     description: Donne le bloc de l'Emerald Anvil.
     usage: /enchantanvil
     permission: belarionenchants.admin
-  emeralditem:
-    description: Donne un item emeraude custom.
-    usage: /emeralditem <sword|hammer|boots>
-    permission: belarionenchants.admin
   belarionenchants:
     description: Commande principale du plugin (reload, etc).
     usage: /belarionenchants <reload>
