@@ -11,31 +11,34 @@ import org.bukkit.inventory.meta.ItemMeta;
  * Bibliotheque d'Enchants : liste absolument tous les custom enchants
  * disponibles avec nom / description / compatibilite / effet.
  *
- * Disposition fixe et volontairement centree : chaque page peut contenir
+ * Disposition fixe et parfaitement centree : chaque page peut contenir
  * jusqu'a 14 custom enchants, places exclusivement dans les slots
- * 11,12,13,14,15,16,17,20,21,22,23,24,25,26. Les boutons de navigation
- * (9 = page precedente, 18 = page suivante) restent en dehors de cette
- * zone d'affichage afin qu'elle ne soit jamais amputee. Cette disposition
- * est identique sur TOUTES les pages, y compris les futures : ajouter un
- * 15e enchant dans CustomEnchant remplit simplement la page courante puis,
- * une fois pleine, cree automatiquement une page suivante qui reprend
- * exactement le meme gabarit, sans aucun changement de code necessaire ici.
+ * 10,11,12,13,14,15,16,19,20,21,22,23,24,25. Ce decalage d'une case vers
+ * la gauche par rapport aux bordures laisse exactement une case libre de
+ * chaque cote sur les deux rangees (9/17 et 18/26), ce qui centre
+ * parfaitement le bloc d'enchants et laisse le coin bas-droite (26) libre
+ * pour la pagination. Cette disposition est identique sur TOUTES les
+ * pages, y compris les futures : ajouter un 15e enchant dans CustomEnchant
+ * remplit simplement la page courante puis, une fois pleine, cree
+ * automatiquement une page suivante qui reprend exactement le meme
+ * gabarit, sans aucun changement de code necessaire ici.
  */
 public final class EnchantLibraryGUI {
 
     public static final String TITLE = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "Bibliotheque d'Enchants";
 
     public static final int SLOT_BACK = 4;
-    public static final int SLOT_PREV = 9;
-    public static final int SLOT_NEXT = 18;
+    public static final int SLOT_PREV = 18;
+    public static final int SLOT_NEXT = 26;
 
     /**
      * Disposition fixe et definitive des enchants, identique sur toutes les
-     * pages : 14 slots exactement, jamais plus, jamais moins.
+     * pages : 14 slots exactement, decales d'une case vers la gauche pour
+     * un centrage parfait (une case libre de chaque cote : 9/17 et 18/26).
      */
     private static final int[] DISPLAY_SLOTS = new int[]{
-            11, 12, 13, 14, 15, 16, 17,
-            20, 21, 22, 23, 24, 25, 26
+            10, 11, 12, 13, 14, 15, 16,
+            19, 20, 21, 22, 23, 24, 25
     };
 
     private EnchantLibraryGUI() {}
@@ -48,7 +51,7 @@ public final class EnchantLibraryGUI {
         if (page > maxPage) page = maxPage;
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        GuiUtil.fillPremiumBackground(inv, new int[]{0, 8, 9, 18});
+        GuiUtil.fillPremiumBackground(inv, new int[]{0, 8, 9, 17});
 
         ItemStack back = GuiUtil.button(Material.ARROW, ChatColor.WHITE, "Retour",
                 GuiUtil.SEPARATOR, ChatColor.GRAY + "Retour a la table.", GuiUtil.SEPARATOR);
@@ -63,15 +66,15 @@ public final class EnchantLibraryGUI {
             inv.setItem(DISPLAY_SLOTS[i], buildDisplayItem(all[start + i]));
         }
 
-        // Fleche "Page suivante" : toujours presente, meme s'il n'existe
-        // qu'une seule page (systeme pret pour les futurs enchants).
-        // Grisee/inactive tant qu'il n'y a rien apres, verte et
+        // Fleche "Page suivante" : toujours presente en bas a droite, meme
+        // s'il n'existe qu'une seule page (systeme pret pour les futurs
+        // enchants). Grisee/inactive tant qu'il n'y a rien apres, verte et
         // fonctionnelle des qu'une page suivante existe.
         boolean hasNext = start + pageSize < all.length;
         inv.setItem(SLOT_NEXT, buildNextButton(hasNext));
 
-        // Fleche "Page precedente" : n'apparait que lorsqu'il existe
-        // effectivement une page anterieure.
+        // Fleche "Page precedente" : en bas a gauche, n'apparait que
+        // lorsqu'il existe effectivement une page anterieure.
         if (page > 0) {
             inv.setItem(SLOT_PREV, GuiUtil.button(Material.ARROW, ChatColor.GREEN, "« Page precedente",
                     GuiUtil.SEPARATOR));
