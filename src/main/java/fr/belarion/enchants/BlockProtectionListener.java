@@ -10,21 +10,40 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * Protege la Table d'Enchantement Emeraude et l'Enclume Emeraude :
- * - insensibles aux explosions (TNT / Creeper)
- * - impossible a deplacer par un piston
- * - l'Enclume Emeraude (Sea Lantern) est incassable, meme apres des
- *   milliers d'utilisations.
+ * - insensibles a TOUTES les explosions (TNT / Creeper / autres) : ce sont
+ *   des blocs premium resistants aux explosions, jamais des blocs
+ *   totalement indestructibles.
+ * - impossibles a deplacer par un piston.
+ * - cassables normalement par un joueur avec une pioche (comme n'importe
+ *   quel bloc solide), en respectant les protections/claims externes
+ *   puisque l'evenement n'est jamais annule dans ce cas : le bloc est bien
+ *   detruit et recupere par le joueur.
+ *
+ * L'Enclume Emeraude (Sea Lantern) n'est pas une vraie enclume vanilla —
+ * c'est un bloc declencheur qui ouvre un GUI 100% custom (EmeraldAnvilGUI)
+ * avec un cout fixe en niveaux. Il n'existe donc aucun etat "endommagee /
+ * tres endommagee / detruite" a gerer : elle reste structurellement
+ * toujours "parfaite", sans le moindre code supplementaire necessaire.
  */
 public class BlockProtectionListener implements Listener {
 
     private boolean isProtected(Material type) {
         return type == Material.EMERALD_BLOCK || type == Material.SEA_LANTERN;
+    }
+
+    private boolean isPickaxe(Material type) {
+        return type == Material.WOOD_PICKAXE
+                || type == Material.STONE_PICKAXE
+                || type == Material.IRON_PICKAXE
+                || type == Material.GOLD_PICKAXE
+                || type == Material.DIAMOND_PICKAXE;
     }
 
     @EventHandler
@@ -66,11 +85,23 @@ public class BlockProtectionListener implements Listener {
         }
     }
 
+    /**
+     * Cassage manuel autorise pour les deux blocs premium, uniquement a la
+     * pioche (comme un bloc mineral classique). Aucune annulation en dehors
+     * de ce controle d'outil : le joueur casse normalement le bloc, qui est
+     * detruit et recupere, en respectant les eventuelles protections/claims
+     * d'autres plugins (l'evenement n'est pas touche dans ce cas).
+     */
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        if (event.getBlock().getType() != Material.SEA_LANTERN) return;
-        event.setCancelled(true);
+        Material type = event.getBlock().getType();
+        if (!isProtected(type)) return;
+
         Player player = event.getPlayer();
-        BelarionEnchants.get().getMessagesManager().send(player, "blocks.anvil-unbreakable");
+        ItemStack hand = player.getItemInHand();
+        if (hand == null || !isPickaxe(hand.getType())) {
+            event.setCancelled(true);
+            BelarionEnchants.get().getMessagesManager().send(player, "blocks.need-pickaxe");
+        }
     }
 }
