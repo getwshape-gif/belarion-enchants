@@ -11,27 +11,26 @@ import org.bukkit.inventory.meta.ItemMeta;
  * Bibliotheque d'Enchants : liste absolument tous les custom enchants
  * disponibles avec nom / description / compatibilite / effet.
  *
- * Paginee des la conception : la grille d'affichage tient 16 enchants par
- * page (DISPLAY_SLOTS), avec des boutons Page suivante / precedente. Ajouter
- * un 17e enchant dans CustomEnchant ne demande donc aucun changement ici.
+ * Disposition fixe et volontairement centree : les enchants n'occupent
+ * QUE les 14 slots 11-17 et 20-26 (jamais 9, 10, 18, 19, ni la bordure).
+ * Cette disposition est identique sur TOUTES les pages, y compris les
+ * futures : ajouter un 15e enchant dans CustomEnchant cree simplement une
+ * page 2 qui reprend exactement le meme gabarit, sans aucun changement de
+ * code necessaire ici.
  */
 public final class EnchantLibraryGUI {
 
     public static final String TITLE = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "Bibliotheque d'Enchants";
 
     public static final int SLOT_BACK = 4;
-    public static final int SLOT_NEXT = 17;
-    public static final int SLOT_PREV = 26;
+    public static final int SLOT_PREV = 9;
+    public static final int SLOT_NEXT = 18;
 
+    /** Disposition fixe et definitive des enchants, identique sur toutes les pages. */
     private static final int[] DISPLAY_SLOTS = new int[]{
-            9, 10, 11, 12, 13, 14, 15, 16,
-            18, 19, 20, 21, 22, 23, 24, 25
+            11, 12, 13, 14, 15, 16, 17,
+            20, 21, 22, 23, 24, 25, 26
     };
-
-    /** Debut des deux rangees d'affichage (8 cases utiles chacune, hors boutons de nav). */
-    private static final int ROW_1_START = 9;
-    private static final int ROW_2_START = 18;
-    private static final int ROW_WIDTH = 8;
 
     private EnchantLibraryGUI() {}
 
@@ -54,9 +53,8 @@ public final class EnchantLibraryGUI {
 
         int start = page * pageSize;
         int count = Math.min(pageSize, all.length - start);
-        int[] slots = centeredSlots(count);
         for (int i = 0; i < count; i++) {
-            inv.setItem(slots[i], buildDisplayItem(all[start + i]));
+            inv.setItem(DISPLAY_SLOTS[i], buildDisplayItem(all[start + i]));
         }
 
         if (start + pageSize < all.length) {
@@ -69,38 +67,6 @@ public final class EnchantLibraryGUI {
         }
 
         return inv;
-    }
-
-    /**
-     * Calcule des slots centres pour "count" enchants (0 a 16), repartis sur
-     * les deux rangees d'affichage (8 cases chacune). Sur une seule rangee
-     * necessaire, les items sont centres horizontalement plutot que colles
-     * a gauche. Sur deux rangees, chacune est centree independamment, la
-     * rangee du haut recevant l'element en plus si le total est impair.
-     */
-    private static int[] centeredSlots(int count) {
-        int[] slots = new int[count];
-        if (count <= ROW_WIDTH) {
-            int pad = (ROW_WIDTH - count) / 2;
-            for (int i = 0; i < count; i++) {
-                slots[i] = ROW_1_START + pad + i;
-            }
-            return slots;
-        }
-
-        int row1Count = (count + 1) / 2;
-        int row2Count = count - row1Count;
-        int pad1 = (ROW_WIDTH - row1Count) / 2;
-        int pad2 = (ROW_WIDTH - row2Count) / 2;
-
-        int idx = 0;
-        for (int i = 0; i < row1Count; i++) {
-            slots[idx++] = ROW_1_START + pad1 + i;
-        }
-        for (int i = 0; i < row2Count; i++) {
-            slots[idx++] = ROW_2_START + pad2 + i;
-        }
-        return slots;
     }
 
     private static ItemStack buildDisplayItem(CustomEnchant enchant) {

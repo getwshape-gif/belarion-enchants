@@ -38,8 +38,8 @@ public final class EnchantTableGUI {
     public static Inventory build() {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
         GuiUtil.fillPremiumBackground(inv, ACCENT_SLOTS);
-        // Avant-derniere case (slot 25) : vitre blanche pour la symetrie avec le reste du fond.
-        inv.setItem(25, GuiUtil.pane(GuiUtil.GLASS_WHITE));
+        // Avant-derniere case (slot 25) : vitre gris pale pour respecter le design du fond.
+        inv.setItem(25, GuiUtil.pane(GuiUtil.GLASS_LIGHT_GRAY));
 
         inv.setItem(SLOT_BOOK, null);
         inv.setItem(SLOT_ENCHANT, buildEnchantButton());
