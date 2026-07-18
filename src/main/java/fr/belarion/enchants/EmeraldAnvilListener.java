@@ -60,11 +60,25 @@ public class EmeraldAnvilListener implements Listener {
         Inventory top = event.getView().getTopInventory();
 
         if (raw >= top.getSize()) {
-            if (event.isShiftClick()) event.setCancelled(true);
+            if (event.isShiftClick()) {
+                handleShiftClickIntoAnvil(event, top);
+            }
             return;
         }
 
-        if (raw == EmeraldAnvilGUI.SLOT_ITEM || raw == EmeraldAnvilGUI.SLOT_BOOK) {
+        if (raw == EmeraldAnvilGUI.SLOT_ITEM) {
+            ItemStack cursor = event.getCursor();
+            if (cursor != null && cursor.getType() != Material.AIR && !ItemTierUtil.isEmeraldTier(cursor)) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+
+        if (raw == EmeraldAnvilGUI.SLOT_BOOK) {
+            ItemStack cursor = event.getCursor();
+            if (cursor != null && cursor.getType() != Material.AIR && cursor.getType() != Material.ENCHANTED_BOOK) {
+                event.setCancelled(true);
+            }
             return;
         }
 
@@ -73,6 +87,36 @@ public class EmeraldAnvilListener implements Listener {
         if (raw != EmeraldAnvilGUI.SLOT_CONFIRM) return;
 
         forge(player, top);
+    }
+
+    /**
+     * Reproduit le Shift + Click vanilla depuis l'inventaire du joueur : un
+     * item Emeraude part automatiquement dans le slot Item, un livre
+     * (vanilla ou custom) part automatiquement dans le slot Livre. Tout
+     * autre item, ou un slot deja occupe, reste bloque.
+     */
+    private void handleShiftClickIntoAnvil(InventoryClickEvent event, Inventory top) {
+        event.setCancelled(true);
+
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || clicked.getType() == Material.AIR) return;
+
+        if (ItemTierUtil.isEmeraldTier(clicked)) {
+            ItemStack existing = top.getItem(EmeraldAnvilGUI.SLOT_ITEM);
+            if (existing == null || existing.getType() == Material.AIR) {
+                top.setItem(EmeraldAnvilGUI.SLOT_ITEM, clicked.clone());
+                event.setCurrentItem(null);
+            }
+            return;
+        }
+
+        if (clicked.getType() == Material.ENCHANTED_BOOK) {
+            ItemStack existing = top.getItem(EmeraldAnvilGUI.SLOT_BOOK);
+            if (existing == null || existing.getType() == Material.AIR) {
+                top.setItem(EmeraldAnvilGUI.SLOT_BOOK, clicked.clone());
+                event.setCurrentItem(null);
+            }
+        }
     }
 
     private void forge(Player player, Inventory top) {

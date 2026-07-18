@@ -16,16 +16,20 @@ import java.util.Random;
 
 /**
  * GUI de la Table d'Enchantement Emeraude.
- * 27 slots, fond de vitres vert emeraude.
+ * 27 slots, style premium : gris fonce dominant, bordures gris clair,
+ * quelques accents emeraude autour des slots fonctionnels.
  * Livre vierge : slot 13. Bouton Enchanter : slot 22. Bibliotheque : slot 26.
  */
 public final class EnchantTableGUI {
 
-    public static final String TITLE = ChatColor.DARK_GREEN.toString() + ChatColor.BOLD + "✦ Table Emeraude ✦";
+    public static final String TITLE = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "✦ Table Emeraude ✦";
 
     public static final int SLOT_BOOK = 13;
     public static final int SLOT_ENCHANT = 22;
     public static final int SLOT_LIBRARY = 26;
+
+    /** Vitres emeraude decoratives encadrant les slots fonctionnels. */
+    private static final int[] ACCENT_SLOTS = new int[]{12, 14, 21, 23, 25};
 
     private static final Random RANDOM = new Random();
 
@@ -33,7 +37,7 @@ public final class EnchantTableGUI {
 
     public static Inventory build() {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        GuiUtil.fillBackground(inv);
+        GuiUtil.fillPremiumBackground(inv, ACCENT_SLOTS);
 
         inv.setItem(SLOT_BOOK, null);
         inv.setItem(SLOT_ENCHANT, buildEnchantButton());

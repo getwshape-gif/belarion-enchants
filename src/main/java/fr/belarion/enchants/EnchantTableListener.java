@@ -51,11 +51,21 @@ public class EnchantTableListener implements Listener {
         int raw = event.getRawSlot();
 
         if (raw >= top.getSize()) {
-            if (event.isShiftClick()) event.setCancelled(true);
+            if (event.isShiftClick()) {
+                handleShiftClickIntoTable(event, top);
+            }
             return;
         }
 
-        if (raw == EnchantTableGUI.SLOT_BOOK) return;
+        if (raw == EnchantTableGUI.SLOT_BOOK) {
+            // Placement direct (sans shift) : n'accepte qu'un livre vierge, ou une
+            // main vide pour reprendre le livre deja pose. Bloque tout le reste.
+            ItemStack cursor = event.getCursor();
+            if (cursor != null && cursor.getType() != Material.AIR && cursor.getType() != Material.BOOK) {
+                event.setCancelled(true);
+            }
+            return;
+        }
 
         event.setCancelled(true);
 
@@ -66,6 +76,42 @@ public class EnchantTableListener implements Listener {
 
         if (raw == EnchantTableGUI.SLOT_ENCHANT) {
             EnchantTableGUI.tryEnchant(player, top);
+        }
+    }
+
+    /**
+     * Reproduit le comportement vanilla du Shift + Click depuis l'inventaire
+     * du joueur : un livre vierge shift-clique est envoye automatiquement
+     * dans le slot d'entree de la table, en fusionnant avec la pile deja
+     * presente si possible. Tout autre item reste bloque (placement invalide).
+     */
+    private void handleShiftClickIntoTable(InventoryClickEvent event, Inventory top) {
+        event.setCancelled(true);
+
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || clicked.getType() != Material.BOOK) return;
+
+        ItemStack existing = top.getItem(EnchantTableGUI.SLOT_BOOK);
+        if (existing == null || existing.getType() == Material.AIR) {
+            top.setItem(EnchantTableGUI.SLOT_BOOK, clicked.clone());
+            event.setCurrentItem(null);
+            return;
+        }
+
+        if (existing.getType() != Material.BOOK) return;
+
+        int space = existing.getMaxStackSize() - existing.getAmount();
+        if (space <= 0) return;
+
+        int moved = Math.min(space, clicked.getAmount());
+        existing.setAmount(existing.getAmount() + moved);
+        top.setItem(EnchantTableGUI.SLOT_BOOK, existing);
+
+        if (moved >= clicked.getAmount()) {
+            event.setCurrentItem(null);
+        } else {
+            clicked.setAmount(clicked.getAmount() - moved);
+            event.setCurrentItem(clicked);
         }
     }
 

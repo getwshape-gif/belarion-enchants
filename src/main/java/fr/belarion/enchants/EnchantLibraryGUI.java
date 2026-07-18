@@ -7,9 +7,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Bibliotheque d'Enchants : liste absolument tous les custom enchants
  * disponibles avec nom / description / compatibilite / effet.
@@ -41,7 +38,7 @@ public final class EnchantLibraryGUI {
         if (page > maxPage) page = maxPage;
 
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
-        GuiUtil.fillBackground(inv);
+        GuiUtil.fillPremiumBackground(inv, new int[]{0, 8, 17, 26});
 
         ItemStack back = GuiUtil.button(Material.ARROW, ChatColor.WHITE, "Retour",
                 GuiUtil.SEPARATOR, ChatColor.GRAY + "Retour a la table.", GuiUtil.SEPARATOR);
@@ -72,31 +69,8 @@ public final class EnchantLibraryGUI {
     private static ItemStack buildDisplayItem(CustomEnchant enchant) {
         ItemStack item = new ItemStack(enchant.getIcon());
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(enchant.getColor().toString() + ChatColor.BOLD + "✦ " + enchant.getDisplayName() + " ✦");
-
-        List<String> lore = new ArrayList<String>();
-        lore.add(GuiUtil.SEPARATOR);
-        lore.add("");
-        for (String line : enchant.getDescription()) {
-            lore.add(ChatColor.GRAY + line);
-        }
-        lore.add("");
-        lore.add(GuiUtil.SEPARATOR);
-        lore.add("");
-        lore.add(ChatColor.DARK_GREEN + "Compatible");
-        lore.add(ChatColor.GREEN + "✔ " + enchant.getTarget().getLabel());
-        lore.add("");
-        lore.add(GuiUtil.SEPARATOR);
-        lore.add("");
-        lore.add(ChatColor.DARK_GREEN + "Effet");
-        for (String line : enchant.getEffectLines()) {
-            lore.add(ChatColor.GREEN + "✔ " + line);
-        }
-        lore.add("");
-        lore.add(GuiUtil.SEPARATOR);
-        lore.add("");
-        lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + "Belarion");
-        meta.setLore(lore);
+        meta.setDisplayName(enchant.getColor().toString() + ChatColor.BOLD + enchant.getDisplayName());
+        meta.setLore(GuiUtil.buildEnchantLore(enchant));
         item.setItemMeta(meta);
         return item;
     }
