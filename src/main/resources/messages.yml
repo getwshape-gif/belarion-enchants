@@ -6,6 +6,7 @@
 prefix: "&8[&2Belarion&8] &7"
 
 player-only: "&cCette commande est reservee aux joueurs."
+no-permission: "&cTu n'as pas la permission d'utiliser cette commande."
 unknown-item: "&cItem inconnu. Utilise : sword, hammer ou boots"
 item-received: "&7Tu as recu &f%item%"
 

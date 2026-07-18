@@ -22,8 +22,16 @@ commands:
     usage: /belarionenchants <reload>
     permission: belarionenchants.admin
     aliases: [bel, benchants]
+  enchants:
+    description: Ouvre la Bibliotheque des Custom Enchants.
+    usage: /enchants
+    permission: blarionenchants.command.enchants
+    aliases: [enchant, customenchants, customenchant]
 
 permissions:
   belarionenchants.admin:
     description: Acces aux commandes admin de BelarionEnchants
     default: op
+  blarionenchants.command.enchants:
+    description: Autorise l'ouverture de la Bibliotheque des Custom Enchants via /enchants.
+    default: true
